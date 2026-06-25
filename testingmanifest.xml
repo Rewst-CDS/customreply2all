@@ -1,0 +1,106 @@
+<OfficeApp
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"  
+  xsi:type="MailApp">
+
+  <Id>61b20d94-1560-4461-b31b-64190d7a6e98</Id>
+  <Version>1.0.0.1</Version> <ProviderName>Internal IT Tools</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Special Reply Tools"/>
+  <Description DefaultValue="Custom reply mechanisms for complex mail threads."/>
+  <IconUrl DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-80.png"/>
+  <SupportUrl DefaultValue="https://stubhohm.github.io/OutlookSpecialReply2All/"/>
+
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.8"/>
+    </Sets>
+  </Requirements>
+
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://stubhohm.github.io/OutlookSpecialReply2All/commands.html"/>
+        <RequestedHeight>32</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadWriteItem</Permissions>
+
+  <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.8">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="residFunctionFile"/>
+          
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="msgReadGroup">
+                <Label resid="residGroupName"/>
+                <Control xsi:type="Button" id="btnSpecialReply">
+                  <Label resid="residBtnLabel"/>
+                  <Supertip>
+                    <Title resid="residBtnLabel"/>
+                    <Description resid="residBtnTooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="20" resid="icon20"/>
+                    <bt:Image size="24" resid="icon24"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="64" resid="icon64"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>specialReplyToAll</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+          
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="icon16" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-16.png"/>
+        <bt:Image id="icon20" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-20.png"/>
+        <bt:Image id="icon24" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-24.png"/>
+        <bt:Image id="icon32" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-32.png"/>
+        <bt:Image id="icon64" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-64.png"/>
+        <bt:Image id="icon80" DefaultValue="https://appsforoffice.microsoft.com/assets/images/placeholder-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="residFunctionFile" DefaultValue="https://stubhohm.github.io/OutlookSpecialReply2All/commands.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="residGroupName" DefaultValue="Custom Replying"/>
+        <bt:String id="residBtnLabel" DefaultValue="Special Reply All"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="residDescription" DefaultValue="Automates recipient shuffling to keep threads clean."/>
+        <bt:String id="residBtnTooltip" DefaultValue="Creates a reply placing sender in TO, and everyone else explicitly into CC."/>
+      </bt:LongStrings>
+    </Resources>
+    
+  </VersionOverrides>
+
+</OfficeApp>
