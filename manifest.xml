@@ -5,7 +5,7 @@
   xsi:type="MailApp">
 
   <Id>61b20d94-1560-4461-b31b-64190d7a6e98</Id>
-  <Version>1.0.0.3</Version> <ProviderName>Internal IT Tools</ProviderName>
+  <Version>1.0.0.4</Version> <ProviderName>Internal IT Tools</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Special Reply Tools"/>
   <Description DefaultValue="Custom reply mechanisms for complex mail threads."/>
