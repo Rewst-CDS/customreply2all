@@ -5,11 +5,11 @@
   xsi:type="MailApp">
 
   <Id>61b20d94-1560-4461-b31b-64190d7a6e98</Id>
-  <Version>1.0.0.4</Version> <ProviderName>Internal IT Tools</ProviderName>
+  <Version>1.0.0.5</Version> <ProviderName>Internal IT Tools</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Special Reply Tools"/>
   <Description DefaultValue="Custom reply mechanisms for complex mail threads."/>
-  <IconUrl DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon32.png"/>
+  <IconUrl DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
   <HighResolutionIconUrl DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon80.png"/>
   <SupportUrl DefaultValue="https://rewst-cds.github.io/customreply2all/"/>
 
@@ -82,12 +82,12 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="icon16" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon16.png"/>
-        <bt:Image id="icon20" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon20.png"/>
-        <bt:Image id="icon24" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon24.png"/>
-        <bt:Image id="icon32" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon32.png"/>
+        <bt:Image id="icon16" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon20" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon24" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon32" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
         <bt:Image id="icon64" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
-        <bt:Image id="icon80" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon80.png"/>
+        <bt:Image id="icon80" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="residFunctionFile" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.html"/>
