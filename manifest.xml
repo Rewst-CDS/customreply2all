@@ -5,7 +5,7 @@
   xsi:type="MailApp">
 
   <Id>61b20d94-1560-4461-b31b-64190d7a6e98</Id>
-  <Version>1.0.0.7</Version> <ProviderName>Internal IT Tools</ProviderName>
+  <Version>1.0.0.8</Version> <ProviderName>Internal IT Tools</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Special Reply Tools"/>
   <Description DefaultValue="Custom reply mechanisms for complex mail threads."/>
@@ -44,49 +44,63 @@
       </bt:Sets>
     </Requirements>
 
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="residFunctionFile"/>
+          
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="msgReadGroup">
+                <Label resid="residGroupName"/>
+                <Control xsi:type="Button" id="btnSpecialReply">
+                  <Label resid="residBtnLabel"/>
+                  <Supertip>
+                    <Title resid="residBtnLabel"/>
+                    <Description resid="residBtnTooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="icon16"/>
+                    <bt:Image size="20" resid="icon20"/>
+                    <bt:Image size="24" resid="icon24"/>
+                    <bt:Image size="32" resid="icon32"/>
+                    <bt:Image size="64" resid="icon64"/>
+                    <bt:Image size="80" resid="icon80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>specialReplyToAll</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
     <Resources>
       <bt:Images>
+        <bt:Image id="icon16" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon20" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon24" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon32" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
         <bt:Image id="icon64" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+        <bt:Image id="icon80" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="residFunctionFile" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.html"/>
-        <bt:Url id="AutorunJs" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.js"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="residGroupName" DefaultValue="Custom Replying"/>
+        <bt:String id="residBtnLabel" DefaultValue="Special Reply All"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="residDescription" DefaultValue="Automates recipient shuffling to keep threads clean."/>
+        <bt:String id="residBtnTooltip" DefaultValue="Creates a reply placing sender in TO, and everyone else explicitly into CC."/>
       </bt:LongStrings>
     </Resources>
-
-    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
-      <Requirements>
-        <bt:Sets DefaultMinVersion="1.10">
-          <bt:Set Name="Mailbox"/>
-        </bt:Sets>
-      </Requirements>
-      
-      <Hosts>
-        <Host xsi:type="MailHost">
-          <Runtimes>
-            <Runtime resid="residFunctionFile">
-              <Override type="javascript" resid="AutorunJs"/>
-            </Runtime>
-          </Runtimes>
-          
-          <DesktopFormFactor>
-            <FunctionFile resid="residFunctionFile"/>
-            <ExtensionPoint xsi:type="LaunchEvent">
-              <LaunchEvents>
-                <LaunchEvent Type="OnNewMessageCompose" FunctionName="onMessageComposeHandler"/>
-              </LaunchEvents>
-              <SourceLocation resid="residFunctionFile"/>
-            </ExtensionPoint>
-          </DesktopFormFactor>
-        </Host>
-      </Hosts>
-    </VersionOverrides>
     
   </VersionOverrides>
 

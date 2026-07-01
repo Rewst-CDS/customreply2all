@@ -36,59 +36,61 @@
 
   <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
 
-  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
-    
+<VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+  
+  <Requirements>
+    <bt:Sets DefaultMinVersion="1.8">
+      <bt:Set Name="Mailbox"/>
+    </bt:Sets>
+  </Requirements>
+
+  <Resources>
+    <bt:Images>
+      <bt:Image id="icon64" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
+    </bt:Images>
+    <bt:Urls>
+      <bt:Url id="residFunctionFile" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.html"/>
+      <bt:Url id="AutorunHtml" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.html"/>
+      <bt:Url id="AutorunJs" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.js"/>
+    </bt:Urls>
+    <bt:ShortStrings>
+      <bt:String id="residGroupName" DefaultValue="Custom Replying"/>
+    </bt:ShortStrings>
+    <bt:LongStrings>
+      <bt:String id="residDescription" DefaultValue="Automates recipient shuffling to keep threads clean."/>
+    </bt:LongStrings>
+  </Resources>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
     <Requirements>
-      <bt:Sets DefaultMinVersion="1.8">
+      <bt:Sets DefaultMinVersion="1.10">
         <bt:Set Name="Mailbox"/>
       </bt:Sets>
     </Requirements>
-
-    <Resources>
-      <bt:Images>
-        <bt:Image id="icon64" DefaultValue="https://rewst-cds.github.io/customreply2all/icons/icon64.png"/>
-      </bt:Images>
-      <bt:Urls>
-        <bt:Url id="residFunctionFile" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.html"/>
-        <bt:Url id="AutorunHtml" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.html"/>
-        <bt:Url id="AutorunJs" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.js"/>
-      </bt:Urls>
-      <bt:ShortStrings>
-        <bt:String id="residGroupName" DefaultValue="Custom Replying"/>
-      </bt:ShortStrings>
-      <bt:LongStrings>
-        <bt:String id="residDescription" DefaultValue="Automates recipient shuffling to keep threads clean."/>
-      </bt:LongStrings>
-    </Resources>
-
-    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
-      <Requirements>
-        <bt:Sets DefaultMinVersion="1.10">
-          <bt:Set Name="Mailbox"/>
-        </bt:Sets>
-      </Requirements>
-      
-      <Hosts>
-        <Host xsi:type="MailHost">
-          <Runtimes>
-            <Runtime resid="AutorunHtml">
-              <Override type="javascript" resid="AutorunJs"/>
-            </Runtime>
-          </Runtimes>
-          
-          <DesktopFormFactor>
-            <FunctionFile resid="AutorunHtml"/>
-            <ExtensionPoint xsi:type="LaunchEvent">
-              <LaunchEvents>
-                <LaunchEvent Type="OnNewMessageCompose" FunctionName="onMessageComposeHandler"/>
-              </LaunchEvents>
-              <SourceLocation resid="AutorunHtml"/>
-            </ExtensionPoint>
-          </DesktopFormFactor>
-        </Host>
-      </Hosts>
-    </VersionOverrides>
     
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <Runtimes>
+          <Runtime resid="AutorunHtml">
+            <Override type="javascript" resid="AutorunJs"/>
+          </Runtime>
+        </Runtimes>
+        
+        <DesktopFormFactor>
+          <FunctionFile resid="AutorunHtml"/>
+          <ExtensionPoint xsi:type="LaunchEvent">
+            <LaunchEvents>
+              <LaunchEvent Type="OnNewMessageCompose" FunctionName="onMessageComposeHandler"/>
+            </LaunchEvents>
+            <SourceLocation resid="AutorunHtml"/>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
   </VersionOverrides>
+  
+</VersionOverrides>
+  
+</VersionOverrides>
 
 </OfficeApp>
