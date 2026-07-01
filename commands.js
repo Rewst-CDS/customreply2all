@@ -1,34 +1,28 @@
-console.log("[SpecialReplyTools] Script file loaded and executing initial blocks.");
+console.log("[SpecialReplyTools] Script file loaded.");
 
 Office.onReady((info) => {
-  console.log("[SpecialReplyTools] Office.onReady fired. Host:", info.host, " Platform:", info.platform);
-  
-  if (info.host === Office.HostType.Outlook) {
-    console.log("[SpecialReplyTools] Host confirmed as Outlook. Forcing immediate function execution...");
-    runSpecialReplyWorkflow();
-  } else {
-    console.warn("[SpecialReplyTools] Host type mismatch. Expected Outlook.");
-  }
+  console.log("[SpecialReplyTools] Office.onReady fired. Host:", info.host);
 });
 
-function runSpecialReplyWorkflow() {
-  console.log("[SpecialReplyTools] ---> runSpecialReplyWorkflow triggered! <---");
+// 1. Function name matches the manifest <FunctionName> exactly
+// 2. Accepts the 'event' parameter
+function specialReplyToAll(event) {
+  console.log("[SpecialReplyTools] ---> specialReplyToAll triggered by button! <---");
 
   const item = Office.context.mailbox.item;
   if (!item) {
-    console.error("[SpecialReplyTools] Failure: Office.context.mailbox.item is unavailable.");
+    console.error("[SpecialReplyTools] Failure: item is unavailable.");
+    event.completed();
     return;
   }
 
-  try {
-    const currentUserEmail = Office.context.mailbox.userProfile.emailAddress.toLowerCase();
-    
-    // We will build a list of additional recipients to inject directly into the CC line
-    let extraCcRecipients = [];
+  const currentUserEmail = Office.context.mailbox.userProfile.emailAddress.toLowerCase();
+  let extraCcRecipients = [];
 
-    // Map original TOs to CC (excluding self)
-    if (item.to) {
-      item.to.forEach((rcp) => {
+  // Helper function to push recipients to CC
+  const processRecipients = (recipients) => {
+    if (recipients) {
+      recipients.forEach((rcp) => {
         if (rcp.emailAddress.toLowerCase() !== currentUserEmail) {
           extraCcRecipients.push({ 
             displayName: rcp.displayName, 
@@ -38,39 +32,32 @@ function runSpecialReplyWorkflow() {
         }
       });
     }
+  };
 
-    // Keep original CCs in CC (excluding self)
-    if (item.cc) {
-      item.cc.forEach((rcp) => {
-        if (rcp.emailAddress.toLowerCase() !== currentUserEmail) {
-          extraCcRecipients.push({ 
-            displayName: rcp.displayName, 
-            emailAddress: rcp.emailAddress, 
-            type: Office.MailboxEnums.RecipientType.Cc 
-          });
-        }
-      });
-    }
+  // Map all original TOs and CCs to the new CC array
+  processRecipients(item.to);
+  processRecipients(item.cc);
 
-    console.log("[SpecialReplyTools] Launching native Reply All form with pre-computed extra recipients...");
+  console.log("[SpecialReplyTools] Launching native Reply form with shuffled recipients...");
 
-    // Fire and forget: Outlook native engine handles the heavy lifting, no setTimeout required
-    item.displayReplyAllFormAsync(
-      { 
-        htmlBody: "<br><br>",
-        extraRecipients: extraCcRecipients
-      },
-      function (asyncResult) {
-        console.log("[SpecialReplyTools] Native window generation status:", asyncResult.status);
-        if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-          console.error("[SpecialReplyTools] Native window invocation failed:", asyncResult.error);
-        } else {
-          console.log("[SpecialReplyTools] Form generated successfully. Relinquishing runtime control.");
-        }
+  // 3. Use displayReplyFormAsync (Reply to Sender) instead of ReplyAll
+  // This natively puts the sender in 'To' and preserves the email body.
+  item.displayReplyFormAsync(
+    { 
+      extraRecipients: extraCcRecipients
+    },
+    function (asyncResult) {
+      if (asyncResult.status === Office.AsyncResultStatus.Failed) {
+        console.error("[SpecialReplyTools] Native window invocation failed:", asyncResult.error);
+      } else {
+        console.log("[SpecialReplyTools] Form generated successfully.");
       }
-    );
-
-  } catch (runtimeError) {
-    console.error("[SpecialReplyTools] Critical tracking block crash:", runtimeError);
-  }
+      
+      // 4. Signal to Outlook that the command has finished executing
+      event.completed();
+    }
+  );
 }
+
+// 5. Register the function so the Outlook manifest can find and trigger it
+Office.actions.associate("specialReplyToAll", specialReplyToAll);
