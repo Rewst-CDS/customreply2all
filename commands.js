@@ -2,8 +2,9 @@ Office.onReady(function (info) {
     console.log("[Add-in] Office.js initialization complete. Host: " + info.host + ", Platform: " + info.platform);
 });
 
-function customReplyAll(event) {
-    console.log("[Add-in] customReplyAll button clicked. Execution started.");
+// Changed function name to match manifest <FunctionName>
+function specialReplyToAll(event) {
+    console.log("[Add-in] specialReplyToAll button clicked. Execution started.");
     
     var item = Office.context.mailbox.item;
     if (!item) {
@@ -110,7 +111,7 @@ function customReplyAll(event) {
     });
 }
 
-// Associate the function name with the Action ID defined in your manifest
-console.log("[Add-in] Attempting manifest action association for ID: 'customReplyAll'");
-Office.actions.associate("customReplyAll", customReplyAll);
+// Associated key string updated to match manifest <FunctionName>
+console.log("[Add-in] Attempting manifest action association for ID: 'specialReplyToAll'");
+Office.actions.associate("specialReplyToAll", specialReplyToAll);
 console.log("[Add-in] Action association registration parsed.");
