@@ -1,65 +1,112 @@
-console.log("[SpecialReplyTools] Shuffling module loaded.");
+console.log("[SpecialReplyTools] Script file loaded and executing initial blocks.");
 
+// Register and execute immediately on initialization
 Office.onReady((info) => {
+  console.log("[SpecialReplyTools] Office.onReady fired. Host:", info.host, " Platform:", info.platform);
+  
   if (info.host === Office.HostType.Outlook) {
-    // Ensure we are executing inside a COMPOSE item context
-    if (Office.context.mailbox.item.to) {
-      executeRecipientShuffle();
-    }
+    console.log("[SpecialReplyTools] Host confirmed as Outlook. Forcing immediate function execution...");
+    runSpecialReplyWorkflow();
+  } else {
+    console.warn("[SpecialReplyTools] Host type mismatch. Expected Outlook.");
   }
 });
 
-function executeRecipientShuffle() {
-  console.log("[SpecialReplyTools] ---> Shuffling active reply-all targets... <---");
+function runSpecialReplyWorkflow() {
+  console.log("[SpecialReplyTools] ---> runSpecialReplyWorkflow triggered! <---");
 
-  const currentDraft = Office.context.mailbox.item;
-  const currentUserEmail = Office.context.mailbox.userProfile.emailAddress.toLowerCase();
+  const item = Office.context.mailbox.item;
+  console.log("[SpecialReplyTools] Context item tracking:", item);
 
-  // 1. Fetch the recipients Outlook natively added to the TO line
-  currentDraft.to.getAsync(function (asyncResult) {
+  if (!item) {
+    console.error("[SpecialReplyTools] Failure: Office.context.mailbox.item is unavailable.");
+    return;
+  }
+
+  // STEP 1: Fetch the original email thread content as HTML
+  item.body.getAsync(Office.CoercionType.Html, function (asyncResult) {
     if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-      console.error("[SpecialReplyTools] Couldn't read current TO fields:", asyncResult.error);
+      console.error("[SpecialReplyTools] Failed to retrieve message body content:", asyncResult.error);
       return;
     }
 
-    const nativeToRecipients = asyncResult.value;
-    let newToLine = [];
-    let migratedCcLine = [];
+    // The thread content lives inside asyncResult.value
+    const originalThreadBody = asyncResult.value;
+    console.log("[SpecialReplyTools] Thread content successfully fetched.");
 
-    // 2. Separate out the original sender vs everyone else
-    nativeToRecipients.forEach((rcp, index) => {
-      const email = rcp.emailAddress.toLowerCase();
+    try {
+      const currentUserEmail = Office.context.mailbox.userProfile.emailAddress;
+      console.log("[SpecialReplyTools] Current user profile: ", currentUserEmail);
+
+      let newToRecipients = [];
+      let newCcRecipients = [];
+
+      // 2. Map original sender to TO
+      if (item.from) {
+        console.log("[SpecialReplyTools] Processing From field:", item.from.emailAddress);
+        newToRecipients.push({ displayName: item.from.displayName, emailAddress: item.from.emailAddress });
+      }
+
+      // 3. Map original TOs to CC (excluding self)
+      if (item.to) {
+        item.to.forEach((rcp) => {
+          if (rcp.emailAddress.toLowerCase() !== currentUserEmail.toLowerCase()) {
+            newCcRecipients.push({ displayName: rcp.displayName, emailAddress: rcp.emailAddress });
+          }
+        });
+      }
+
+      // 4. Keep original CCs in CC (excluding self)
+      if (item.cc) {
+        item.cc.forEach((rcp) => {
+          if (rcp.emailAddress.toLowerCase() !== currentUserEmail.toLowerCase()) {
+            newCcRecipients.push({ displayName: rcp.displayName, emailAddress: rcp.emailAddress });
+          }
+        });
+      }
+
+      const replySubject = item.subject.toLowerCase().startsWith("re:") ? item.subject : "RE: " + item.subject;
+      console.log("[SpecialReplyTools] Generated reply subject: ", replySubject);
+
+      // STEP 5: Stitch together a native Outlook-looking message splitter line and header
+      const senderName = item.from ? item.from.displayName : "";
+      const senderEmail = item.from ? item.from.emailAddress : "";
       
-      // Keep yourself off all lines completely
-      if (email === currentUserEmail) return;
+      const combinedHtmlBody = `
+        <br><br>
+        <div style="border:none;border-top:solid #B5B5B5 1.0pt;padding:3.0pt 0in 0in 0in;font-family:Calibri,sans-serif;font-size:11.0pt;">
+          <b>From:</b> ${senderName} &lt;${senderEmail}&gt;<br>
+          <b>Sent:</b> ${item.dateTimeCreated ? item.dateTimeCreated.toLocaleString() : ""}<br>
+          <b>To:</b> ${item.to ? item.to.map(r => r.displayName || r.emailAddress).join("; ") : ""}<br>
+          <b>Cc:</b> ${item.cc ? item.cc.map(r => r.displayName || r.emailAddress).join("; ") : ""}<br>
+          <b>Subject:</b> ${item.subject}<br>
+        </div>
+        <br>
+        ${originalThreadBody}
+      `;
 
-      // Treat the very first recipient as the original sender (to stay in TO)
-      if (index === 0) {
-        newToLine.push({ displayName: rcp.displayName, emailAddress: rcp.emailAddress });
-      } else {
-        // Shunt all secondary TO recipients into the CC buffer
-        migratedCcLine.push({ displayName: rcp.displayName, emailAddress: rcp.emailAddress });
-      }
-    });
-
-    // 3. Overwrite the draft's TO line to contain ONLY the primary sender
-    currentDraft.to.setAsync(newToLine, function (toSetResult) {
-      if (toSetResult.status === Office.AsyncResultStatus.Succeeded) {
-        console.log("[SpecialReplyTools] TO field trimmed down to primary sender.");
-        
-        // 4. Inject the rest of the team into the CC line safely
-        if (migratedCcLine.length > 0) {
-          currentDraft.cc.addAsync(migratedCcLine, function (ccAddResult) {
-            if (ccAddResult.status === Office.AsyncResultStatus.Succeeded) {
-              console.log("[SpecialReplyTools] Successfully shuffled remaining targets to CC.");
-            } else {
-              console.error("[SpecialReplyTools] CC injection failed:", ccAddResult.error);
-            }
-          });
+      console.log("[SpecialReplyTools] Launching message draft window...");
+      
+      // STEP 6: Open the message form with the custom recipients AND thread history attached
+      Office.context.mailbox.displayNewMessageFormAsync(
+        {
+          toRecipients: newToRecipients,
+          ccRecipients: newCcRecipients,
+          subject: replySubject,
+          htmlBody: combinedHtmlBody
+        },
+        function (formResult) {
+          console.log("[SpecialReplyTools] Form callback status:", formResult.status);
+          if (formResult.status === Office.AsyncResultStatus.Failed) {
+            console.error("[SpecialReplyTools] Draft initialization failed:", formResult.error);
+          } else {
+            console.log("[SpecialReplyTools] Success: New draft interface generated.");
+          }
         }
-      } else {
-        console.error("[SpecialReplyTools] Error rewriting TO row:", toSetResult.error);
-      }
-    });
+      );
+
+    } catch (runtimeError) {
+      console.error("[SpecialReplyTools] Critical tracking block crash:", runtimeError);
+    }
   });
 }
