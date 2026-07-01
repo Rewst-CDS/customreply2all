@@ -1,5 +1,3 @@
-Office.onReady();
-
 function onMessageComposeHandler(event) {
     console.log("[Add-in Event] Native draft detected. Evaluating launch trigger context...");
     var item = Office.context.mailbox.item;
