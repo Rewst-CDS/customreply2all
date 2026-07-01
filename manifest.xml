@@ -50,8 +50,7 @@
       </bt:Images>
       <bt:Urls>
         <bt:Url id="residFunctionFile" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.html"/>
-        <bt:Url id="AutorunHtml" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.html"/>
-        <bt:Url id="AutorunJs" DefaultValue="https://rewst-cds.github.io/customreply2all/autorun.js"/>
+        <bt:Url id="AutorunJs" DefaultValue="https://rewst-cds.github.io/customreply2all/commands.js"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="residGroupName" DefaultValue="Custom Replying"/>
@@ -71,18 +70,18 @@
       <Hosts>
         <Host xsi:type="MailHost">
           <Runtimes>
-            <Runtime resid="AutorunHtml">
+            <Runtime resid="residFunctionFile">
               <Override type="javascript" resid="AutorunJs"/>
             </Runtime>
           </Runtimes>
           
           <DesktopFormFactor>
-            <FunctionFile resid="AutorunHtml"/>
+            <FunctionFile resid="residFunctionFile"/>
             <ExtensionPoint xsi:type="LaunchEvent">
               <LaunchEvents>
                 <LaunchEvent Type="OnNewMessageCompose" FunctionName="onMessageComposeHandler"/>
               </LaunchEvents>
-              <SourceLocation resid="AutorunHtml"/>
+              <SourceLocation resid="residFunctionFile"/>
             </ExtensionPoint>
           </DesktopFormFactor>
         </Host>
