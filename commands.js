@@ -1,63 +1,70 @@
-console.log("[SpecialReplyTools] Script file loaded.");
-
-Office.onReady((info) => {
-  console.log("[SpecialReplyTools] Office.onReady fired. Host:", info.host);
+Office.onReady(function (info) {
+    if (info.host === Office.HostType.Outlook) {
+        console.log("[SpecialReplyTools] Office.onReady fired. Host: Outlook");
+    }
 });
 
-// 1. Function name matches the manifest <FunctionName> exactly
-// 2. Accepts the 'event' parameter
+console.log("[SpecialReplyTools] Script file loaded.");
+
 function specialReplyToAll(event) {
-  console.log("[SpecialReplyTools] ---> specialReplyToAll triggered by button! <---");
+    console.log("[SpecialReplyTools] ---> specialReplyToAll triggered by button! <---");
 
-  const item = Office.context.mailbox.item;
-  if (!item) {
-    console.error("[SpecialReplyTools] Failure: item is unavailable.");
-    event.completed();
-    return;
-  }
+    const item = Office.context.mailbox.item;
+    const currentUserEmail = Office.context.mailbox.userProfile.emailAddress.toLowerCase();
+    const originalSender = item.from ? item.from.emailAddress : "";
+    
+    let toRecipients = [];
+    let ccRecipients = [];
 
-  const currentUserEmail = Office.context.mailbox.userProfile.emailAddress.toLowerCase();
-  let extraCcRecipients = [];
+    if (originalSender && originalSender.toLowerCase() !== currentUserEmail) {
+        toRecipients.push(item.from);
+    }
 
-  // Helper function to push recipients to CC
-  const processRecipients = (recipients) => {
-    if (recipients) {
-      recipients.forEach((rcp) => {
-        if (rcp.emailAddress.toLowerCase() !== currentUserEmail) {
-          extraCcRecipients.push({ 
-            displayName: rcp.displayName, 
-            emailAddress: rcp.emailAddress, 
-            type: Office.MailboxEnums.RecipientType.Cc 
-          });
+    if (item.to) {
+        item.to.forEach(function (recp) {
+            if (recp.emailAddress.toLowerCase() !== currentUserEmail && recp.emailAddress.toLowerCase() !== originalSender.toLowerCase()) {
+                ccRecipients.push(recp);
+            }
+        });
+    }
+
+    if (item.cc) {
+        item.cc.forEach(function (recp) {
+            if (recp.emailAddress.toLowerCase() !== currentUserEmail && recp.emailAddress.toLowerCase() !== originalSender.toLowerCase()) {
+                ccRecipients.push(recp);
+            }
+        });
+    }
+
+    item.body.getAsync(Office.CoercionType.Html, function (asyncResult) {
+        if (asyncResult.status === Office.AsyncResultStatus.Failed) {
+            console.error("[SpecialReplyTools] Failed to get body:", asyncResult.error.message);
+            if (event) event.completed();
+            return;
         }
-      });
-    }
-  };
 
-  // Map all original TOs and CCs to the new CC array
-  processRecipients(item.to);
-  processRecipients(item.cc);
+        const originalBody = asyncResult.value;
+        const replyHeader = "<br><br><hr><b>From:</b> " + (item.from ? item.from.displayName : originalSender) + 
+                            "<br><b>Date:</b> " + item.dateTimeCreated.toLocaleString() + 
+                            "<br><b>Subject:</b> " + item.subject + "<br><br>";
 
-  console.log("[SpecialReplyTools] Launching native Reply form with shuffled recipients...");
+        console.log("[SpecialReplyTools] Launching native Reply form with shuffled recipients...");
 
-  // 3. Use displayReplyFormAsync (Reply to Sender) instead of ReplyAll
-  // This natively puts the sender in 'To' and preserves the email body.
-  item.displayReplyFormAsync(
-    { 
-      extraRecipients: extraCcRecipients
-    },
-    function (asyncResult) {
-      if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-        console.error("[SpecialReplyTools] Native window invocation failed:", asyncResult.error);
-      } else {
-        console.log("[SpecialReplyTools] Form generated successfully.");
-      }
-      
-      // 4. Signal to Outlook that the command has finished executing
-      event.completed();
-    }
-  );
+        Office.context.mailbox.displayNewMessageFormAsync({
+            toRecipients: toRecipients,
+            ccRecipients: ccRecipients,
+            subject: (item.subject.toUpperCase().startsWith("RE:") ? item.subject : "RE: " + item.subject),
+            htmlBody: replyHeader + originalBody
+        }, function(formResult) {
+            if (formResult.status === Office.AsyncResultStatus.Failed) {
+                console.error("[SpecialReplyTools] Form failed:", formResult.error.message);
+            } else {
+                console.log("[SpecialReplyTools] Form generated successfully.");
+            }
+            
+            if (event) event.completed();
+        });
+    });
 }
 
-// 5. Register the function so the Outlook manifest can find and trigger it
 Office.actions.associate("specialReplyToAll", specialReplyToAll);
